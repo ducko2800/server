@@ -1,0 +1,24 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+      reuseAddress: true
+  adminConnectors:
+    - type: http
+      port: 8081
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+    - type: file
+      currentLogFilename: server.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: logs/server.%d.log.gz
+      archivedFileCount: 14
+
+database:
+  driverClass: org.apache.derby.jdbc.EmbeddedDriver 
+  url: 'jdbc:derby:serverDb;'
+  validationQuery: "/* MyService Health Check */ SELECT * FROM USERS"

@@ -1,0 +1,81 @@
+/*
+ * For more details take a look at the Java Quickstart chapter in the Gradle
+ * user guide available at https://docs.gradle.org/2.9/userguide/tutorial_java_projects.html
+ */
+
+/** Setup the settings for all projects **/
+allprojects {
+    group = "ducko2800"
+    version = "0.1-SNAPSHOT"
+}
+
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+
+/** Setup to apply to all sub projects **/
+subprojects {
+  // Plugins
+  apply plugin: 'java';
+  apply plugin: 'eclipse';
+  apply plugin: 'idea';
+  apply plugin: 'jacoco';
+  
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8 
+  
+  // Jacoco Settings
+  jacoco {
+        toolVersion = "0.7.7.201606060606"
+  }
+
+  test {
+    jacoco {
+        append = true
+        destinationFile = file("$projectDir/../build/jacoco/jacocoTest.exec")
+        classDumpFile = file("$projectDir/../build/jacoco/classdump")
+	}
+  }
+
+
+  // Javadoc Settings
+  tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+  }
+
+  javadoc {
+    options.tags = ['require', 'ensure']
+  }
+
+
+  // Repository and Dependency Settings
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+
+  dependencies {
+	 // Dropwizard Framework for the entire server
+     compile group: 'io.dropwizard', name: 'dropwizard-core', version: '1.0.3'
+     compile group: 'com.esotericsoftware', name: 'kryonet', version: '2.22.0-RC1'
+
+     // Unit testing with JUnit
+     testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
+     testCompile group: 'junit', name: 'junit', version: '4.12', {
+      exclude group: "org.hamcrest", module: "hamcrest-core"
+     }
+  }
+}
+
+// Force projects to be installed by build command
+
+project(':server') {
+  apply plugin: 'maven';
+  build.finalizedBy install;
+}
+
+task cleanJacoco(type: Delete) {
+  delete 'build/jacoco'
+}

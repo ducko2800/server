@@ -1,0 +1,31 @@
+/*
+ * This generated file contains a sample Java project to get you started.
+ * For more details take a look at the Java Quickstart chapter in the Gradle
+ * user guide available at https://docs.gradle.org/2.9/userguide/tutorial_java_projects.html
+ */
+apply plugin: 'org.flywaydb.flyway';
+
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath group: 'org.flywaydb', name: 'flyway-gradle-plugin', version: '3.2.1'
+	}
+}
+
+dependencies {
+	compile group: 'io.dropwizard', name: 'dropwizard-jdbi', version: '0.9.3'
+	compile group: 'org.apache.derby', name: 'derby', version: '10.11.1.1'
+}
+
+flyway {
+	url = 'jdbc:derby:' + project.projectDir + '/serverDb;create=true;'
+}
+
+task(run, dependsOn: "classes", type: JavaExec) {
+	main = "ducko2800.server.CoreServer"
+	classpath = sourceSets.main.runtimeClasspath
+	args 'server', './configuration.yaml'
+}

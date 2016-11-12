@@ -1,0 +1,9 @@
+/*
+ * Detailed information about configuring a multi-project build in Gradle can be found
+ * in the user guide at https://docs.gradle.org/2.9/userguide/multi_project_builds.html
+ */
+rootProject.name = 'server'
+
+include 'server'
+//include 'int-test'
+//include 'clients'
