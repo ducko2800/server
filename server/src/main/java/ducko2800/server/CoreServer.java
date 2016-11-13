@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import ducko2800.server.core.ServerConfiguration;
 import ducko2800.server.daos.DaoRegister;
+import ducko2800.server.daos.DaoRegisterFactory;
 import ducko2800.server.resources.ResourceRegister;
 import ducko2800.server.resources.ResourceRegisterFactory;
 import io.dropwizard.Application;
@@ -57,16 +58,25 @@ public class CoreServer extends Application<ServerConfiguration> {
 	 */
 	@Override
 	public void run(ServerConfiguration configuration, Environment environment) {
-		// Setup JDBI
+		LOGGER.debug("Creating Database Objects");
 		final DBIFactory factory = new DBIFactory();
 		final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "derby");
+		DaoRegister daoRegister = new DaoRegisterFactory().getDaoRegisterByReflection(jdbi);
+		LOGGER.info("Database Access Object Register has been createad and populated");
 		
+		LOGGER.debug("Creating resources");
 		ResourceRegister resourceRegister = new ResourceRegisterFactory()
-				.getResourceRegisterByReflection(new DaoRegister());
+				.getResourceRegisterByReflection(daoRegister);
+		LOGGER.info("Resource Register has been created and populated");
+		
+		LOGGER.debug("Registering each resource in the register with Dropwizard's Jersey instance");
 		resourceRegister.forEachResource(resource -> {
-			LOGGER.info("Adding resource to jersey: [{}]", resource);
+			LOGGER.trace("Registering {}", resource);
 			environment.jersey().register(resource);
 		});
+		LOGGER.info("Jersey resource registrating complete");
+		
+		LOGGER.info("Setup complete");
 	}
 
 }
